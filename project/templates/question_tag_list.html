@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}
+  Tags
+{% endblock %}
+{% block pagetitle %}
+  Tags
+{% endblock %}
+{% block content %}
+  <h1><a href="{% url 'questiontag-create' %}" class="btn btn-success btn-sm"><i class="bi bi-plus-circle"></i> Add Tag</a></h1>
+  <div class="wide-card">
+    <table id="table" class="table table-hover table-responsive">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for question_tag in question_tags %}
+          <tr>
+            <td>
+              <span class="badge bg-primary">{{ question_tag.name }}</span>
+            </td>
+            <td style="width:15%">
+              <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Delete"><a href="#" class="bi bi-trash text-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ question_tag.id }}"></a></span>
+              <div class="modal fade" id="deleteModal{{ question_tag.id }}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="deleteModalLabel">Confirm deletion</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">Are you sure you want to delete this question_tag?</div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                      <form method="post" action="{% url 'questiontag-delete' question_tag.id %}" style="display: inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
+{% block scripts %}
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      $('#table').DataTable({
+        paging: false,
+        info: false,
+        ordering: false,
+        searching: false
+      })
+    })
+  </script>
+{% endblock %}

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>
+      {% block title %}
+      {% endblock %}
+    </title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" />
+    <style>
+      body {
+        background-color: #f8f9fa;
+      }
+      
+      .navbar {
+        background-color: #053d6b;
+      }
+      
+      .navbar-brand {
+        color: #ffffff;
+        font-weight: bold;
+      }
+      
+      .nav-link {
+        color: #ffffff;
+      }
+      
+      .dropdown-item:hover {
+        background-color: #053d6b;
+        color: #ffffff;
+      }
+      
+      .container {
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+    <nav class="navbar navbar-expand-lg p-2">
+      <a class="navbar-brand" href="/">Security By Design</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+      {% if user.is_authenticated %}
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" aria-current="page" href="{% url 'project-list' %}"><i class="bi bi-house"></i> Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'project-create' %}"><i class="bi bi-plus-circle"></i> Create Project</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Admin</a>
+              <ul class="dropdown-menu">
+                {% comment %} <li>
+                  <a class="dropdown-item" href="{% url 'question-create' %}">Create Question</a>
+                </li> {% endcomment %}
+                {% comment %} <li>
+                  <a class="dropdown-item" href="{% url 'question-choice-impact-create' %}">Create Impact</a>
+                </li> {% endcomment %}
+                {% comment %} <li>
+                  <a class="dropdown-item" href="{% url 'projectrequirement-create' %}">Create Requirement</a>
+                </li>
+                {% endcomment %}
+                {% if user.is_superuser %}
+                  <li>
+                    <a class="dropdown-item" href="{% url 'user-list' %}">Users</a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="/admin/" target="_blank">Administration</a>
+                  </li>
+                  <li>
+                    <hr class="dropdown-divider" />
+                  </li>
+                {% endif %}
+                <li>
+                  <a class="dropdown-item" href="{% url 'project-list' %}">Projects</a>
+                </li>
+
+                <li>
+                  <a class="dropdown-item" href="{% url 'projectrequirement-list' %}">Requirements</a>
+                </li>
+                <li>
+                  <hr class="dropdown-divider" />
+                </li>
+                <li>
+                  <a class="dropdown-item" href="{% url 'question-list' %}">Questions</a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="{% url 'question-choice-impact-list' %}">Impacts</a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+          <a class="nav-link" aria-current="page" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i> Logout</a>
+        </div>
+      {% endif %}
+    </nav>
+
+    <div class="container-fluid p-5 bg-white">
+      {% block content %}
+      {% endblock %}
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js" integrity="sha384-fbbOQedDUMZZ5KreZpsbe1LCZPVmfTnH7ois6mU1QK+m14rQ1l2bGBq41eYeM/fS" crossorigin="anonymous"></script>
+
+    {% block scripts %}
+    {% endblock %}
+  </body>
+</html>

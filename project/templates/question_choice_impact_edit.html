@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+{% block title %}
+  Edit Question Choice Impact
+{% endblock %}
+
+{% block content %}
+  <h1>Edit Question Choice Impact</h1>
+
+  <form method="post">
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    <button type="submit" class="btn btn-primary">Save</button>
+  </form>
+{% endblock %}

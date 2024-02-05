@@ -1,0 +1,5 @@
+  <form method="POST" action="{% url 'create_directory' %}">
+    {% csrf_token %}
+    <input type="text" name="directory_name" placeholder="Enter directory name" required>
+    <button type="submit">Create Directory</button>
+  </form>

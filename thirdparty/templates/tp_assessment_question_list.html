@@ -1,0 +1,103 @@
+{% extends "base.html" %} 
+{% load static %}
+{% block title %}
+  Third Party Questions
+{% endblock %}
+{% block pagetitle %}
+  Third Party Questions
+{% endblock %}
+{% block content %}
+  <div class="wide-card">
+  <table id="table" class="table table-hover table-responsive">
+    <thead>
+      <tr>
+        <th>Question</th>
+        <th>Answer</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for assessment_question in assessment_questions %}
+        
+          <tr>
+            <form id="assessment_question_{{ assessment_question.id }}" method="post" action="{% url 'tp_assessment_question_edit' assessment_question.id %}">
+            {% csrf_token %}
+            <td style="width:20%">
+              <figure>
+                <blockquote class="blockquote">
+                  <p>{{ assessment_question.question.description }}</p>
+                </blockquote>
+                <figcaption class="blockquote-footer">{{ assessment_question.question.details }}</figcaption>
+              </figure>
+            </td>
+            <td>
+              <textarea name="answer" placeholder="Enter answer" rows="10" disabled style="width:100%;">{{ assessment_question.answer }}</textarea>
+            </td>
+            <td style="width:20%">
+              <form action="" method="POST" class="followup-form">
+                {% csrf_token %}
+                <div class="form-floating">
+                  <select name="score" class="form-select" id="floatingSelect" data-question-id="{{ assessment_question.id }}" data-project-id="{{ assessment_question.id }}">
+                    {% for score in scores %}
+                    
+                      {% if assessment_question.score.id == score.id %}
+                        <option value="{{ score.id }}" selected>{{ score.name }}</option>
+                      {% else %}
+                        <option value="{{ score.id }}">{{ score.name }}</option>
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+                  <label for="floatingSelect">Change Status</label>
+                </div>
+              </form>
+            
+          </form>
+          </tr>
+        
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      $('#table').DataTable({
+        columnDefs: [{ width: 'auto', targets: '_all' }],
+        paging: false,
+        info: false,
+        searching: false,
+      })
+    })
+  </script>
+  <script>
+    $(document).ready(function () {
+      $('#table').on('change', 'select.form-select[data-question-id]', function () {
+        var followupId = $(this).data('followup-id')
+        var questionId = $(this).data('question-id')
+        var newStatus = $(this).val()
+        var reverse = "{% url 'tp_assessment_question_edit' '99999999-9999-9999-9999-999999999999' %}".replace('99999999-9999-9999-9999-999999999999', questionId)
+    
+        $.ajax({
+          url: reverse,
+          method: 'POST',
+          data: {
+            pk: followupId,
+            score: newStatus,
+            assessment_question_id: questionId,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+          },
+          success: function (response) {
+            // Handle success response if needed
+            location.reload()
+          },
+          error: function (xhr, textStatus, error) {
+            // Handle error response if needed
+          }
+        })
+      })
+    })
+  </script>
+
+
+  {% endblock %}

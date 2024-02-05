@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+{% block title %}
+  Create Question Choice Impact
+{% endblock %}
+
+{% block content %}
+  <h1>Create Question Choice Impact</h1>
+
+  <form role="form" class="form-horizontal" method="post">
+    {% csrf_token %}
+    {% bootstrap_form form layout = 'horizontal' %}
+    <button type="submit" class="btn btn-primary">Create</button>
+  </form>
+{% endblock %}

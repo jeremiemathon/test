@@ -1,0 +1,108 @@
+{% load static %}
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  </head>
+  <body>
+    <section class="home-section">
+      <div class="container p-5" style="width: 100%;">
+        <div class="wide-card h-100">
+          <div style="font-variant-caps: small-caps;" class="m-3">
+            <h1>{{ assessment.third_party.name }} Assessment on {{ assessment.date|date:'F j, Y' }}</h1>
+          </div>
+          <table id="table" class="display compact">
+            <thead>
+              <tr>
+                <th>Question</th>
+                <th>Answer</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for assessment_question in answered_questions %}
+                {% if assessment_question.answer %}
+                  <tr>
+                    <form id="assessment_question_{{ assessment_question.id }}" method="post" action="{% url 'tp_public_assessment_question_edit' assessment_question.id %}">
+                      {% csrf_token %}
+                      <td width="30%">
+                        <figure>
+                          <blockquote class="blockquote">
+                            <p>{{ assessment_question.question.description }}</p>
+                          </blockquote>
+                          <figcaption class="blockquote-footer">{{ assessment_question.question.details }}</figcaption>
+                        </figure>
+                      </td>
+                      <td width="60%">
+                        <textarea class="form-control" name="answer" placeholder="Enter answer" rows="3" col="100%">{{ assessment_question.answer }}</textarea>
+                      </td>
+                      <td>
+                        <button type="submit" class="btn btn-warning btn-sm"><i class="bi bi-check">Edit</i></button>
+                      </td>
+                    </form>
+                  </tr>
+                {% endif %}
+              {% endfor %}
+              {% if first_empty_answer %}
+                <tr>
+                  <form id="first_empty_answer_{{ first_empty_answer.id }}" method="post" action="{% url 'tp_public_assessment_question_edit' first_empty_answer.id %}">
+                    {% csrf_token %}
+                    <td width="30%">
+                      <figure>
+                        <blockquote class="blockquote">
+                          <p>{{ first_empty_answer.question.description }}</p>
+                        </blockquote>
+                        <figcaption class="blockquote-footer">{{ first_empty_answer.question.details }}</figcaption>
+                      </figure>
+                    </td>
+                    <td width="60%">
+                      <textarea class="form-control" name="answer" placeholder="Enter answer" rows="3" col="100%">{{ first_empty_answer.answer }}</textarea>
+                    </td>
+                    <td>
+                      <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-check">Submit</i></button>
+                    </td>
+                  </form>
+                </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <script>
+      let arrow = document.querySelectorAll('.arrow')
+      let sidebar = document.querySelector('.sidebar')
+      let sidebarBtn = document.querySelector('.bi-list')
+      
+      for (var i = 0; i < arrow.length; i++) {
+        arrow[i].addEventListener('click', (e) => {
+          let arrowParent = e.target.parentElement.parentElement //selecting main parent of arrow
+          arrowParent.classList.toggle('showMenu')
+        })
+      }
+      
+      sidebarBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('close')
+      })
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js" integrity="sha384-fbbOQedDUMZZ5KreZpsbe1LCZPVmfTnH7ois6mU1QK+m14rQ1l2bGBq41eYeM/fS" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $('#table').DataTable({
+          columnDefs: [{ width: 'auto', targets: '_all' }],
+          searching: false, // Remove search field
+          paging: false, // Remove pagination
+          ordering: false,
+          info: false
+        })
+      })
+    </script>
+  </body>
+</html>

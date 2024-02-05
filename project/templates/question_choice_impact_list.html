@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+{% load custom_tags %}
+{% block title %}
+  Impacts
+{% endblock %}
+{% block pagetitle %}
+  Impacts
+{% endblock %}
+
+{% block content %}
+  <div class="wide-card">
+    <table id="table" class="table table-hover table-responsive">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Question</th>
+          <th>Choice</th>
+          <th>CIA Impact</th>
+          <th>Tags</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for impact in impacts %}
+          <tr>
+            {% ifchanged impact.question.order %}
+            <td class="text-center align-top">{{ impact.question.order }}</td>
+            <td style="width:60%">{{ impact.question.description }}</td>
+            {% else %}
+            <td></td>
+            <td></td>
+            {% endifchanged %}
+
+            <td>{{ impact.choice }}</td>
+            <td>{{ impact.impact_confidentiality|bootstrap_badge|safe }}
+              {{ impact.impact_integrity|bootstrap_badge|safe }}
+              {{ impact.impact_availability|bootstrap_badge|safe }}</td>
+            <td>
+              {% for tag in impact.tags.all %}
+                <span class="badge bg-primary">{{ tag }}</span>
+              {% endfor %}
+            </td>
+            <td>
+              <a href="{% url 'edit-question-choice-impact' impact.id %}" class="bi bi-pencil-square text-primary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit"></a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
+{% block scripts %}
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      $('#table').DataTable({
+        paging: false,
+        info: false,
+        ordering: false,
+        searching: false
+      })
+    })
+  </script>
+{% endblock %}

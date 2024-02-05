@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load custom_tags %}
+{% load library_tags %}
+
+
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    
+  <div class="wide-card">
+  
+  <table id="table" class="display compact">
+    
+    <thead>
+      <tr>
+        <th>Select</th>
+        <th>Name</th>
+        <th>Created At</th>
+        <th>Author</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for doc in documents %}
+        <tr>
+            <td><input type="checkbox" name="selected_documents" value="{{doc.id}}" {% if doc in requirement.documents.all %}checked{% endif %}></td>
+          <td><i class="{{ doc.name|file_icon }}" style="color:{{doc.name|file_color}}"></i>&nbsp;<span class="text-body-secondary">{{ doc.name }}</span></td>
+          <td>{{doc.created_at}}</td>
+          <td>{{doc.uploaded_by}}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <input type="submit" value="Save">
+  </div>
+  <br>
+  
+</form>
+{% endblock %}
+{% block scripts %}
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      $('#table').DataTable({
+        columnDefs: [{ width: 'auto', targets: '_all' }],
+        pageLength: 50,
+        info: false,
+
+      })
+    })    
+  </script>
+{% endblock %}

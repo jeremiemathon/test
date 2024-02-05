@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load custom_tags %}
+{% block title %}
+  Projects
+{% endblock %}
+{% block pagetitle %}
+  Projects
+{% endblock %}
+
+<a href="{% url 'project-list' %}" style="text-decoration: none; color: inherit; font-variant-caps: small-caps;">Projects</a>
+{% block content %}
+  <h1><a href="{% url 'project-create' %}" class="btn btn-success btn-sm"><i class="bi bi-plus-circle"></i> Add Project</a></h1>
+  <div class="wide-card">
+    <table id="table" class="table table-hover">
+      <caption></caption>
+      <thead class="">
+        <tr>
+          <th class="text-center">Update</th>
+          <th class="text-center">CIA</th>
+          <th class="text-center">Name</th>
+          {% comment %} <th class="text-center">Description</th> {% endcomment %}
+
+          <th class="text-center">Tags</th>
+          <th class="text-center">Progress</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for project in projects %}
+          <tr>
+            <td class="align-middle" style="cursor: pointer; white-space: nowrap; width: 1%;" onclick="window.location='{% url 'follow-up-edit' project.id %}'">
+              <span>{{ project.date_updated }}</span>
+            </td>
+            <td class="align-middle" style="cursor: pointer; white-space: nowrap; width: 1%;" onclick="window.location='{% url 'follow-up-edit' project.id %}'">{{ project.confidentiality|bootstrap_badge|safe }}
+              {{ project.integrity|bootstrap_badge|safe }}
+              {{ project.availability|bootstrap_badge|safe }}</td>
+            <td class="align-middle text-center" style="cursor: pointer; " onclick="window.location='{% url 'follow-up-edit' project.id %}'">
+              {% if project.status == 'Not Started' %}
+                <span class="badge bg-danger"></span>
+              {% elif project.status == 'Ongoing' %}
+                <span class="badge bg-warning"></span>
+              {% elif project.status == 'Ended' %}
+                <span class="badge bg-success"></span>
+              {% endif %}
+              {% if project.signed_off %}
+                <i class="bi bi-patch-check-fill" style="color: green;" style="cursor: pointer;" onclick="window.location='{% url 'follow-up-edit' project.id %}'"></i>
+              {% endif %}{{ project.name }}
+            </td>
+            {% comment %} <td class="align-middle" style="cursor: pointer;" onclick="window.location='{% url 'follow-up-edit' project.id %}'">{{ project.description }}</td> {% endcomment %}
+
+            <td class="align-middle" style="cursor: pointer; white-space: nowrap; width: 1%;" onclick="window.location='{% url 'follow-up-edit' project.id %}'">
+              {% for tag in project.tags.all %}
+                <span class="badge rounded-pill text-bg-primary">{{ tag }}</span>
+              {% endfor %}
+            </td>
+            <td class="align-middle" style="cursor: pointer;width: 20%">
+              {% progress_bar project.progress %}
+            </td>
+            <td style="cursor: pointer; white-space: nowrap; width: 1%;" class="align-middle">
+              <a href="{% url 'follow-up-edit' project.id %}" class="bi bi-list text-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="View Details"></a>
+              <a href="{% url 'edit-project' project.id %}" class="bi bi-pencil-square text-primary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit Project"></a>
+              <div class="vr"></div>
+              <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Delete"><a href="#" class="bi bi-trash text-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ project.id }}"></a></span>
+              <div class="modal fade" id="deleteModal{{ project.id }}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="deleteModalLabel">Confirm deletion</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">Are you sure you want to delete this project?</div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                      <form method="post" action="{% url 'project-delete' project.id %}" style="display: inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
+{% block scripts %}
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+  <script>
+    var searchable_table = JSON.parse('{{ global_settings.searchable_table|lower }}')
+    $(document).ready(function () {
+      $('#table').DataTable({
+        columnDefs: [{ width: 'auto', targets: '_all' }],
+        paging: false,
+        info: false,
+    
+        searching: searchable_table
+      })
+    })
+  </script>
+{% endblock %}

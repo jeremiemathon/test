@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+  <a href="{% url 'project-list' %}" style="text-decoration: none; color: inherit;">Projects</a> >
+  <a href="{% url 'follow-up-edit' follow_up.project.id %}" style="text-decoration: none; color: inherit;">{{ follow_up.project.name }}</a>
+  > {{ follow_up.requirement.reference }}
+{% endblock %}
+
+{% block content %}
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-lg-8 col-md-10 mx-auto">
+        <div class="card mb-4">
+          <div class="card-body">
+            <form method="POST" action="{% url 'add-comment' follow_up.id %}" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="form-group">
+                <label for="comment">Add a comment:</label>
+                <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
+              </div>
+              <div class="form-group">
+                <label for="file">Upload a file:</label>
+                <input type="file" class="form-control-file" id="file" name="file" />
+              </div>
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-8 col-md-10 mx-auto">
+        <div class="card mb-4">
+          <div class="card-body">
+            <h2 class="card-title">{{ follow_up.requirement.reference }}</h2>
+            <p class="card-text">{{ follow_up.requirement.description }}</p>
+          </div>
+          <div class="card-footer text-muted">
+            {% for comment in comments %}
+              <div class="card mb-3">
+                <div class="card-body">
+                  <h5 class="card-title">{{ comment.user.username }}</h5>
+                  {% if request.user == comment.user or request.user.is_superuser %}
+                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ project.id }}"><i class="bi bi-trash"></i></button>
+                    <div class="modal fade" id="deleteModal{{ project.id }}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="deleteModalLabel">Confirm deletion</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body">Are you sure you want to delete this project?</div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <form method="post" action="{% url 'delete-comment' comment.id %}" style="display: inline">
+                              {% csrf_token %}
+                              <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  {% endif %}
+                  <h6 class="card-subtitle mb-2 text-muted">{{ comment.comment_date }}</h6>
+                  <p class="card-text">{{ comment.comment }}</p>
+                  {% if comment.file %}
+                    <a href="{{ comment.file.url }}" download>Download attached file</a>
+                  {% endif %}
+                </div>
+              </div>
+              {% empty %}
+              <p>No comments yet.</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

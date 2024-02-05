@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+{% load custom_tags %}
+{% load library_tags %}
+
+{% block title %}
+  {{ project.name }}
+{% endblock %}
+
+{% block pagetitle %}
+  {{ project.name }}
+  {% if project.progress < 75 %}
+    <div class="progress">
+      <div class="progress-bar progress-bar-striped bg-danger" role="progressbar" style="width: {{ project.progress }}%" aria-valuenow="{{ project.progress }}" aria-valuemin="0" aria-valuemax="10">{{ project.progress }}%</div>
+    </div>
+  {% elif project.progress < 100 %}
+    <div class="progress">
+      <div class="progress-bar progress-bar-striped bg-warning" role="progressbar" style="width: {{ project.progress }}%" aria-valuenow="{{ project.progress }}" aria-valuemin="0" aria-valuemax="10">{{ project.progress }}%</div>
+    </div>
+  {% else %}
+    <div class="progress">
+      <div class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: {{ project.progress }}%" aria-valuenow="{{ project.progress }}" aria-valuemin="0" aria-valuemax="10">{{ project.progress }}%</div>
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-md-3">
+      <a href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">Details<i class="bi bi-arrow-right" style=""></i></a>
+    </div>
+  </div>
+  <hr />
+
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="offcanvasRightLabel">
+        {% if project.signed_off %}
+          <i class="bi bi-patch-check-fill" style="color: green;"></i>
+        {% endif %}
+        {{ project.name }}
+        <a href="{% url 'edit-project' project.id %}"><i class="bi bi-pencil-square h4"></i></a>
+        {% if project %}
+          <a href="{% url 'update-follow-up' project.id %}"><i class="bi bi-arrow-clockwise text-success h4"></i></a>
+        {% endif %}
+        {% if user.is_superuser %}
+          <a href="{% url 'follow-up-signoff' project.id %}"><i class="bi bi-patch-check text-warning h4"></i></a>
+        {% endif %}
+      </h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div>
+        {% if project.status == 'Not Started' %}
+          <span class="text-danger">{{ project.status }}</span>
+        {% elif project.status == 'Ongoing' %}
+          <span class="text-warning">{{ project.status }}</span>
+        {% elif project.status == 'Ended' %}
+          <span class="text-success">{{ project.status }}</span>
+        {% endif %}
+
+        {{ project.confidentiality|bootstrap_badge|safe }}
+        {{ project.integrity|bootstrap_badge|safe }}
+        {{ project.availability|bootstrap_badge|safe }}
+      </div>Created: {{ project.date_created|date:'F j, Y' }}<br />
+      Updated: {{ project.date_updated|date:'F j, Y' }}
+
+      <h5>Tags</h5>
+      {% for tag in project.tags.all %}
+        <span class="badge rounded-pill text-bg-primary">{{ tag }}</span>
+      {% endfor %}
+      <hr />
+      {% comment %}3rd Parties (add <i class="bi bi-building"></i>): <br /> {% endcomment %}
+      <h5 style="display: inline;">3rd Parties</h5>
+      <a data-bs-toggle="modal" data-bs-target="#thirdPartyModal" class="bi bi-plus-square-fill"></a><br />
+      {% for third_party, score in project_third_parties %}
+        <span class="badge bg-primary">{{ third_party.name }}</span>:{% if score > 0 %}
+          {{ score }}
+        {% else %}
+          None
+        {% endif %}
+        <br />
+      {% endfor %}
+
+      <div class="modal fade" id="thirdPartyModal" tabindex="-1" aria-labelledby="thirdPartyModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <div class="modal-title" id="thirdPartyModalLabel">
+                <i class="bi bi-building"></i>&nbsp; Add 3rd Parties to the project
+              </div>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="{% url 'update_project_thirdparties' %}">
+              {% csrf_token %}
+              <input type="hidden" name="project_id" value="{{ project.id }}" />
+              <div class="modal-body">
+                <input class="form-control" id="thirdPartySearch" type="text" onkeyup="filterFunction()" placeholder="Search.." />
+                <select multiple class="form-select" name="third_party_ids" id="thirdPartySelect">
+                  {% for third_party in third_parties %}
+                    {% if third_party in project.third_parties.all %}
+                      <option value="{{ third_party.id }}" selected>{{ third_party.name }}</option>
+                    {% else %}
+                      <option value="{{ third_party.id }}">{{ third_party.name }}</option>
+                    {% endif %}
+                  {% endfor %}
+                </select>
+              </div>
+
+              <script>
+                function filterFunction() {
+                  var input, filter, select, option, i
+                  input = document.getElementById('thirdPartySearch')
+                  filter = input.value.toUpperCase()
+                  select = document.getElementById('thirdPartySelect')
+                  option = select.getElementsByTagName('option')
+                  for (i = 0; i < option.length; i++) {
+                    txtValue = option[i].textContent || option[i].innerText
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                      option[i].style.display = ''
+                    } else {
+                      option[i].style.display = 'none'
+                    }
+                  }
+                }
+              </script>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" id="saveButtonId">Save changes</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-12">
+    <div class="wide-card h-100">
+      <table id="example" class="table table-hover table-responsive">
+        <thead>
+          <tr>
+            
+            <th>#</th>
+            <th>Reference</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Update</th>
+            <th></th>
+
+          </tr>
+        </thead>
+        <tbody>
+          <h3>Requirements Followup</h3>
+          {% for followup in followups %}
+          
+            <tr valign="middle">
+              
+              <td>{{ followup.requirement.order }}</td>
+              <td style="text-align:center; cursor: pointer;" onclick="window.location='{% url 'comment-list' followup.id %}'">{{ followup.requirement.reference }}</td>
+              <td style="width:60%; cursor: pointer;" onclick="window.location='{% url 'comment-list' followup.id %}'">
+                <figure>
+                  <blockquote class="blockquote">{{ followup.requirement.description }}</blockquote>
+                  {% if followup.requirement.comments.all %}
+                  <figcaption class="blockquote-footer">View comments : ({{ followup.comment_count }})</figcaption>
+                  {% endif %}
+                  {% if followup.requirement.documents.all %}
+                    <figcaption class="blockquote-footer">
+                      Related Documents{% for doc in followup.requirement.documents.all %}
+                        <i class="{{ doc.name|file_icon }}" style="color:{{doc.name|file_color}}"></i>&nbsp;<a href="{% url 'directory_detail' doc.directory.id %}">{{ doc.name|lower }}</a>
+                      {% endfor %}
+                    </figcaption>
+                  {% endif %}
+                </figure>
+              </td>
+              <td>
+                <form action="{% url 'single-follow-up-edit' followup.id %}" method="POST" class="followup-form">
+                  {% csrf_token %}
+                  <div class="form-floating" >
+                    <select name="status" class="form-select" id="floatingSelect" data-followup-id="{{ followup.id }}" data-project-id="{{ project.id }}">
+                      {% for status in statuses %}
+                        {% if followup.status.id == status.id %}
+                          <option value="{{ status.id }}" selected>{{ status.name }}</option>
+                        {% else %}
+                          <option value="{{ status.id }}">{{ status.name }}</option>
+                        {% endif %}
+                      {% endfor %}
+                    </select>
+                    <label for="floatingSelect">Change Status</label>
+                  </div>
+                </form>
+              </td>
+              <td>
+                <span class="text-body-secondary">{{ followup.updated_date }}</span>
+              </td>
+              <td class="{{ followup.status.value | color_status }}"></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      $('#example').DataTable({
+        paging: false,
+        searching: false,
+        info: false
+      })
+    })
+  </script>
+  <script>
+    $(document).ready(function () {
+      $('#example').on('change', 'select.form-select[data-followup-id]', function () {
+        var followupId = $(this).data('followup-id')
+        var projectId = $(this).data('project-id')
+        var newStatus = $(this).val()
+        var reverse = "{% url 'single-follow-up-edit' '99999999-9999-9999-9999-999999999999' %}".replace('99999999-9999-9999-9999-999999999999', followupId)
+    
+        $.ajax({
+          url: reverse,
+          method: 'POST',
+          data: {
+            pk: followupId,
+            status: newStatus,
+            project_id: projectId,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+          },
+          success: function (response) {
+            // Handle success response if needed
+            location.reload()
+          },
+          error: function (xhr, textStatus, error) {
+            // Handle error response if needed
+          }
+        })
+      })
+    })
+  </script>
+{% endblock %}

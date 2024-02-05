@@ -1,0 +1,182 @@
+{% load static %}
+
+<!DOCTYPE html>
+<!-- Created by CodingLab |www.youtube.com/CodingLabYT -->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" href="{% static 'css/base.css' %}" />
+    {% block head %}{% endblock head %}
+  </head>
+  <body>
+    <div class="sidebar">
+      <div class="logo-details">
+       
+        <span class="logo_name"></span>
+      </div>
+      <ul class="nav-links">
+        
+        <li>
+          <div class="iocn-link">
+            <a href="{% url 'project-list' %}">
+              <i class="bi bi-kanban"></i>
+              <span class="link_name">Projects</span>
+            </a>
+            <i class="bi bi-chevron-down arrow"></i>
+          </div>
+          <ul class="sub-menu">
+            <li>
+              <a class="link_name" href="{% url 'project-list' %}">Projects</a>
+            </li>
+            {% comment %} <li>
+              <a class="dropdown-item" href="{% url 'project-list' %}">Dashboard</a>
+            </li>
+            <hr /> {% endcomment %}
+            <li>
+              <a class="dropdown-item" href="{% url 'projectrequirement-list' %}">Requirements</a>
+            </li>
+
+            <li>
+              <a class="dropdown-item" href="{% url 'question-list' %}">Questions</a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="{% url 'question-choice-impact-list' %}">Impacts</a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="{% url 'questiontag-list' %}">Tags</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <div class="iocn-link">
+            <a href="{% url 'tp_list' %}">
+              <i class="bi bi-building"></i>
+              <span class="link_name">Third Party</span>
+            </a>
+            <i class="bi bi-chevron-down arrow"></i>
+          </div>
+          <ul class="sub-menu">
+            <li>
+              <a class="link_name" href="{% url 'tp_list' %}">Third Party</a>
+            </li>
+            {% comment %} <li>
+              <a class="dropdown-item" href="{% url 'third_party_list' %}">Dashboard</a>
+            </li>
+            <hr /> {% endcomment %}
+
+            <li>
+              <a class="dropdown-item" href="{% url 'tp_question_list' %}">Questions</a>
+            </li>
+          </ul>
+        </li>
+
+        {% comment %} <li>
+          <div class="iocn-link">
+            <a href="{% url 'third_party_list' %}">
+              <i class="bi bi-building"></i>
+              <span class="link_name">Third Party</span>
+            </a>
+            <ul class="sub-menu blank">
+              <li>
+                <a class="link_name" href="{% url 'third_party_list' %}">Third Party</a>
+              </li>
+            </ul>
+          </div>
+        </li> {% endcomment %}
+
+        <li>
+          <div class="iocn-link">
+            <a href="{% url 'root-directory' %}">
+              <i class="bi bi-files"></i>
+              <span class="link_name">Library</span>
+            </a>
+            <ul class="sub-menu blank">
+              <li>
+                <a class="link_name" href="{% url 'project-list' %}">Projects</a>
+              </li>
+            </ul>
+          </div>
+        </li>
+        
+        <hr />
+        <li>
+          <div class="iocn-link">
+            <a href="#">
+              <i class="bi bi-gear"></i>
+              <span class="link_name">Admin</span>
+            </a>
+            <i class="bi bi-chevron-down arrow"></i>
+          </div>
+          <ul class="sub-menu">
+            <li>
+              <a class="link_name" href="#">Admin</a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="{% url 'user-list' %}">Users</a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="/admin/" target="_blank">Administration</a>
+            </li>
+          </ul>
+        </li>
+        <div class="profile-details">
+          <div class="profile-content">
+            <!-- <img src="image/profile.jpg" alt="profileImg"> -->
+            
+          </div>
+          <div class="name-job">
+            <div class="profile_name">{{ request.user.username }}</div>
+            <br />
+            <div class="job">
+              <a href="{% url 'logout' %}" class="text-dark"><i class="bi bi-box-arrow-left text-white">&nbsp;Log Out</i></a>
+            </div>
+          </div>
+          <i class="bx bx-log-out"></i>
+        </div>
+      </ul>
+    </div>
+    <section class="home-section">
+      <div class="home-content">
+        <i class="bi bi-list"></i><h2>
+          <div style="font-variant-caps: small-caps;" class="m-3">
+            <h1>{% block title %}
+            
+            {% endblock %}
+            </h1>
+          </div>
+        </h2>
+      </div>
+      <div class="container-fluid p-5" style="width: 100%;">
+        {% block content %}
+
+        {% endblock %}
+      </div>
+    </section>
+
+    <script>
+      let arrow = document.querySelectorAll('.arrow')
+      let sidebar = document.querySelector('.sidebar')
+      let sidebarBtn = document.querySelector('.bi-list')
+
+      for (var i = 0; i < arrow.length; i++) {
+        arrow[i].addEventListener('click', (e) => {
+          let arrowParent = e.target.parentElement.parentElement //selecting main parent of arrow
+          arrowParent.classList.toggle('showMenu')
+        })
+      }
+      
+      sidebarBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('close')
+      })
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js" integrity="sha384-fbbOQedDUMZZ5KreZpsbe1LCZPVmfTnH7ois6mU1QK+m14rQ1l2bGBq41eYeM/fS" crossorigin="anonymous"></script>
+
+    {% block scripts %}
+
+    {% endblock %}
+  </body>
+</html>
